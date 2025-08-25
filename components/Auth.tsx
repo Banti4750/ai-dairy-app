@@ -12,6 +12,7 @@ import {
     View
 } from 'react-native';
 import image from '../assets/images/ai-diary-logo.png';
+import ResetPasswordCard from './resetPasswordcard';
 
 // For Android emulator, use 10.0.2.2 instead of localhost
 // For iOS simulator, localhost should work
@@ -20,7 +21,7 @@ const base_url = 'http://192.168.1.23:9000/api' // Replace with your IP
 
 const Auth = () => {
     const { login, signup } = useAuth(); // Get auth functions from context
-    const [authMode, setAuthMode] = useState('signin') // 'signin', 'signup', 'forgot'
+    const [authMode, setAuthMode] = useState('signin') // 'signin', 'signup', 'forgot', 'reset-password'
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -29,6 +30,7 @@ const Auth = () => {
     })
     const [showPassword, setShowPassword] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
+    const [resetEmail, setResetEmail] = useState('') // Store email for reset password
 
     const handleInputChange = (field, value) => {
         setFormData(prev => ({
@@ -65,9 +67,21 @@ const Auth = () => {
                 const data = await response.json()
 
                 if (response.ok) {
-                    Alert.alert('Success', 'Password reset link sent to your email')
-                    setAuthMode('signin')
-                    resetForm()
+                    Alert.alert(
+                        'Success',
+                        'OTP sent to your email. Please check your inbox.',
+                        [
+                            {
+                                text: 'OK',
+                                onPress: () => {
+                                    // Store email and switch to reset password form
+                                    setResetEmail(formData.email)
+                                    setAuthMode('reset-password')
+                                    resetForm()
+                                }
+                            }
+                        ]
+                    )
                 } else {
                     Alert.alert('Error', data.message || 'Failed to send reset link')
                 }
@@ -223,8 +237,29 @@ const Auth = () => {
     const switchAuthMode = (mode) => {
         setAuthMode(mode)
         resetForm()
+        // Clear reset email when switching modes
+        if (mode !== 'reset-password') {
+            setResetEmail('')
+        }
     }
 
+    const handleBackToSignIn = () => {
+        setAuthMode('signin')
+        setResetEmail('')
+        resetForm()
+    }
+
+    // Render ResetPasswordCard when in reset-password mode
+    if (authMode === 'reset-password') {
+        return (
+            <ResetPasswordCard
+                email={resetEmail}
+                onBackToSignIn={handleBackToSignIn}
+            />
+        )
+    }
+
+    // Render normal Auth form for other modes
     return (
         <KeyboardAvoidingView
             className="flex-1"
@@ -353,7 +388,7 @@ const Auth = () => {
                                 <Text className='text-white font-bold text-lg'>
                                     {isLoading ? 'Please wait...' :
                                         authMode === 'signin' ? 'Sign In' :
-                                            authMode === 'signup' ? 'Create Account' : 'Send Reset Link'}
+                                            authMode === 'signup' ? 'Create Account' : 'Send OTP'}
                                 </Text>
                             </TouchableOpacity>
                         </View>
