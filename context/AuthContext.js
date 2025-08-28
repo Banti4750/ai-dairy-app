@@ -48,8 +48,8 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (token, userData) => {
         try {
-            await SecureStore.setItemAsync('authToken', token);
-            await SecureStore.setItemAsync('userData', JSON.stringify(userData));
+            await SecureStore.setItemAsync('authToken', token, { keychainAccessible: SecureStore.WHEN_UNLOCKED });
+            await SecureStore.setItemAsync('userData', JSON.stringify(userData), { keychainAccessible: SecureStore.WHEN_UNLOCKED });
             setUser(userData);
             setToken(token)
             setIsAuthenticated(true);

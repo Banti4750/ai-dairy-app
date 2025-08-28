@@ -1,11 +1,21 @@
 // In your profile/settings component
 import { useAuth } from '@/context/AuthContext';
+import * as SecureStore from 'expo-secure-store';
+import { useEffect, useState } from 'react';
 import { Alert, Button, Text, View } from 'react-native';
 
 const Profile = () => {
-    const { logout, user, token } = useAuth();
+    const { logout, user } = useAuth();
+    const [token, setToken] = useState("")
 
 
+    useEffect(() => {
+
+        (async () => {
+            setToken(await SecureStore.getItemAsync('authToken') || "")
+        })();
+
+    }, []);
 
     const handleLogout = async () => {
         try {

@@ -1,4 +1,5 @@
 import * as FileSystem from 'expo-file-system';
+import * as SecureStore from 'expo-secure-store';
 import * as Sharing from 'expo-sharing';
 import React, { useEffect, useState } from 'react';
 import {
@@ -37,6 +38,7 @@ const EncryptionKeyCard = ({
         setIsGenerating(true);
         try {
             const newKey = await CryptoService.generateMasterKey();
+            // await SecureStore.setItemAsync('derivedKey', base64Key, { keychainAccessible: SecureStore.WHEN_UNLOCKED });
             setGeneratedKey(newKey);
 
             // Set key info for display
@@ -135,6 +137,8 @@ const EncryptionKeyCard = ({
 
         try {
             CryptoService.setMasterKey(inputKey);
+            await SecureStore.setItemAsync('userKey', inputKey, { keychainAccessible: SecureStore.WHEN_UNLOCKED });
+            console.log("hi input key")
             Alert.alert('Success!', 'Encryption key verified and set successfully');
             onKeyVerified?.(inputKey);
         } catch (error) {

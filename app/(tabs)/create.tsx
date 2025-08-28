@@ -1,35 +1,47 @@
-import { KDFJoinKey } from '@/utils/kdfFunction'; // fixed import
-import CryptoES from "crypto-es";
+
+import { useAuth } from '@/context/AuthContext';
+import { decryptData, encryptData } from '@/utils/cryptoEnDe';
+import { getStoredKey, KDFJoinKey } from '@/utils/kdfService';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+
 export default function App() {
-    const [key, setKey] = useState("");
-    const [endata, setEndata] = useState("");
-    const [dedata, setDedata] = useState("");
-    const democontent = "hi i am jshdfvhjdbg dfhvdfuvhgd dsvgvdfyuvgd svgdsvg dvhjdgdvubanti";
+    const { logout, user, token } = useAuth();
+    const [key, setKey] = useState('');
+    const [encrypted, setEncrypted] = useState('');
+    const [decrypted, setDecrypted] = useState('');
+    const [keyLocal, setkeyLocal] = useState("")
+
+    const demoText = 'hi i am hjdfgbfhdjgb dfgduiffgdfughbanti';
 
     useEffect(() => {
         (async () => {
-            // 1️⃣ Derive the key first
-            const digest = await KDFJoinKey("dshjvfdhj", "sduyvdsyu", "duygdsuy");
-            setKey(digest);
+            try {
+                setkeyLocal(await getStoredKey() || "")
+                const derivedKey = await KDFJoinKey(keyLocal, user.email, 'duygdsuy');
+                setKey(derivedKey); // store in state for display
 
-            // 2️⃣ Encrypt after key is ready
-            const encrypted = CryptoES.AES.encrypt(democontent, digest).toString();
-            setEndata(encrypted);
+                // 3️⃣ Encrypt using the derived key
+                const cipher = await encryptData(demoText, derivedKey);
+                setEncrypted(cipher);
 
-            // 3️⃣ Decrypt after encryption
-            const decrypted = CryptoES.AES.decrypt(encrypted, digest).toString(CryptoES.enc.Utf8);
-            setDedata(decrypted);
+                // 4️⃣ Decrypt using the derived key
+                const plain = await decryptData(cipher, derivedKey);
+                setDecrypted(plain);
+            } catch (err) {
+                console.error('Crypto error:', err);
+            }
         })();
     }, []);
+
 
     return (
         <View style={styles.container}>
             <Text>Derived Key: {key}</Text>
-            <Text>Encrypted Data: {endata}</Text>
-            <Text>Decrypted Data: {dedata}</Text>
+            <Text>Encrypted: {encrypted}</Text>
+            <Text>Decrypted: {decrypted}</Text>
+            <Text>{keyLocal}</Text>
         </View>
     );
 }

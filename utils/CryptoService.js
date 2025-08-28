@@ -1,4 +1,3 @@
-// utils/CryptoService.js
 import * as Crypto from 'expo-crypto';
 
 class CryptoService {
@@ -87,97 +86,6 @@ class CryptoService {
         }
     }
 
-    // AES-GCM encryption (secure)
-    async encryptWithAES(data, keyHex) {
-        try {
-            const enc = new TextEncoder();
-            const dataBuffer = enc.encode(JSON.stringify(data));
-
-            // Generate random IV (12 bytes for GCM)
-            const ivHex = await this.generateRandomBytes(12);
-            const iv = this.hexToArrayBuffer(ivHex);
-
-            // Import key
-            const keyBuffer = this.hexToArrayBuffer(keyHex);
-            const cryptoKey = await Crypto.subtle.importKey(
-                'raw',
-                keyBuffer,
-                { name: 'AES-GCM' },
-                false,
-                ['encrypt']
-            );
-            console.log("hi")
-            // Encrypt
-            const encrypted = await Crypto.subtle.encrypt(
-                {
-                    name: 'AES-GCM',
-                    iv: iv
-                },
-                cryptoKey,
-                dataBuffer
-            );
-
-            return {
-                data: this.arrayBufferToHex(encrypted),
-                iv: ivHex,
-                algorithm: 'AES-GCM'
-            };
-        } catch (error) {
-            console.error('AES encryption error:', error);
-            throw error;
-        }
-    }
-
-    // AES-GCM decryption (secure)
-    async decryptWithAES(encryptedData, keyHex) {
-        try {
-            const dataBuffer = this.hexToArrayBuffer(encryptedData.data);
-            const iv = this.hexToArrayBuffer(encryptedData.iv);
-
-            // Import key
-            const keyBuffer = this.hexToArrayBuffer(keyHex);
-            const cryptoKey = await crypto.subtle.importKey(
-                'raw',
-                keyBuffer,
-                { name: 'AES-GCM' },
-                false,
-                ['decrypt']
-            );
-
-            // Decrypt
-            const decrypted = await crypto.subtle.decrypt(
-                {
-                    name: 'AES-GCM',
-                    iv: iv
-                },
-                cryptoKey,
-                dataBuffer
-            );
-
-            const dec = new TextDecoder();
-            const decryptedString = dec.decode(decrypted);
-            return JSON.parse(decryptedString);
-        } catch (error) {
-            console.error('AES decryption error:', error);
-            throw error;
-        }
-    }
-
-    // Encrypt content with master key
-    async encryptContent(content) {
-        if (!this.masterKey) {
-            throw new Error('Master key not available. Please initialize first.');
-        }
-        return await this.encryptWithAES(content, this.masterKey);
-    }
-
-    // Decrypt content with master key
-    async decryptContent(encryptedContent) {
-        if (!this.masterKey) {
-            throw new Error('Master key not available. Please initialize first.');
-        }
-        return await this.decryptWithAES(encryptedContent, this.masterKey);
-    }
 
     // Set master key (when user provides it)
     setMasterKey(keyHex) {
