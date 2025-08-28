@@ -12,11 +12,10 @@ import {
     View
 } from 'react-native';
 import image from '../assets/images/ai-diary-logo.png';
+import CryptoService from '../utils/CryptoService';
+import EncryptionKeyCard from './encryptionKeyCard';
 import ResetPasswordCard from './resetPasswordcard';
 
-// For Android emulator, use 10.0.2.2 instead of localhost
-// For iOS simulator, localhost should work
-// For physical device, use your computer's IP address
 const base_url = 'http://192.168.1.23:9000/api' // Replace with your IP
 
 const Auth = () => {
@@ -31,6 +30,11 @@ const Auth = () => {
     const [showPassword, setShowPassword] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [resetEmail, setResetEmail] = useState('') // Store email for reset password
+
+    // Encryption key states
+    const [showEncryptionModal, setShowEncryptionModal] = useState(false)
+    const [encryptionMode, setEncryptionMode] = useState('generate') // 'generate' or 'input'
+    const [pendingUserData, setPendingUserData] = useState(null) // Store user data during key flow
 
     const handleInputChange = (field, value) => {
         setFormData(prev => ({
@@ -152,36 +156,30 @@ const Auth = () => {
                     return
                 }
 
-                // Success - Use context functions to handle auth state
-                if (authMode === 'signin') {
-                    const result = await login(data.token, data.user || {
-                        email: formData.email,
-                        name: data.name || formData.fullName
-                    })
-
-                    if (result.success) {
-                        Alert.alert('Success', 'Signed in successfully!')
-                        resetForm()
-                        // Context will automatically handle navigation
-                    } else {
-                        Alert.alert('Error', result.error || 'Failed to save login data')
-                    }
-                } else if (authMode === 'signup') {
+                // For signup, show encryption key generation
+                if (authMode === 'signup') {
                     const userData = {
                         email: formData.email,
                         name: formData.fullName,
-                        ...data.user // Include any additional user data from server
+                        ...data.user
                     }
 
-                    const result = await signup(userData, data.token)
-
-                    if (result.success) {
-                        Alert.alert('Success', 'Account created successfully!')
-                        resetForm()
-                        // Context will automatically handle navigation
-                    } else {
-                        Alert.alert('Error', result.error || 'Failed to save signup data')
+                    // Store user data and show encryption key modal
+                    setPendingUserData({ userData, token: data.token })
+                    setEncryptionMode('generate')
+                    setShowEncryptionModal(true)
+                }
+                // For signin, ask for encryption key
+                else if (authMode === 'signin') {
+                    const userData = data.user || {
+                        email: formData.email,
+                        name: data.name || formData.fullName
                     }
+
+                    // Store user data and show encryption key input modal
+                    setPendingUserData({ userData, token: data.token })
+                    setEncryptionMode('input')
+                    setShowEncryptionModal(true)
                 }
 
             } else {
@@ -212,6 +210,57 @@ const Auth = () => {
         } finally {
             setIsLoading(false)
         }
+    }
+
+    // Handle encryption key generated (for signup)
+    const handleKeyGenerated = async (generatedKey) => {
+        if (!pendingUserData) return
+
+        try {
+            const result = await signup(pendingUserData.userData, pendingUserData.token)
+
+            if (result.success) {
+                Alert.alert('Success', 'Account created successfully! Your data is now encrypted.')
+                resetForm()
+                setShowEncryptionModal(false)
+                setPendingUserData(null)
+                // Context will automatically handle navigation
+            } else {
+                Alert.alert('Error', result.error || 'Failed to complete signup')
+            }
+        } catch (error) {
+            console.error('Signup completion error:', error)
+            Alert.alert('Error', 'Failed to complete account setup')
+        }
+    }
+
+    // Handle encryption key verified (for signin)
+    const handleKeyVerified = async (verifiedKey) => {
+        if (!pendingUserData) return
+
+        try {
+            const result = await login(pendingUserData.token, pendingUserData.userData)
+
+            if (result.success) {
+                Alert.alert('Success', 'Signed in successfully! Your encrypted data is ready.')
+                resetForm()
+                setShowEncryptionModal(false)
+                setPendingUserData(null)
+                // Context will automatically handle navigation
+            } else {
+                Alert.alert('Error', result.error || 'Failed to complete signin')
+            }
+        } catch (error) {
+            console.error('Signin completion error:', error)
+            Alert.alert('Error', 'Failed to complete signin')
+        }
+    }
+
+    // Handle encryption modal close
+    const handleEncryptionModalClose = () => {
+        setShowEncryptionModal(false)
+        setPendingUserData(null)
+        CryptoService.clearKeys() // Clear any keys from memory
     }
 
     const handleNetworkError = (error) => {
@@ -391,6 +440,24 @@ const Auth = () => {
                                             authMode === 'signup' ? 'Create Account' : 'Send OTP'}
                                 </Text>
                             </TouchableOpacity>
+
+                            {/* Encryption Info for Sign Up */}
+                            {authMode === 'signup' && (
+                                <View className='bg-blue-50 p-3 rounded-lg mb-4'>
+                                    <Text className='text-blue-800 text-xs text-center'>
+                                        🔒 Your diary entries will be encrypted with a unique key for maximum security
+                                    </Text>
+                                </View>
+                            )}
+
+                            {/* Encryption Info for Sign In */}
+                            {authMode === 'signin' && (
+                                <View className='bg-amber-50 p-3 rounded-lg mb-4'>
+                                    <Text className='text-amber-800 text-xs text-center'>
+                                        🔑 You'll need your encryption key to access your encrypted diary entries
+                                    </Text>
+                                </View>
+                            )}
                         </View>
 
                         {/* Footer Links */}
@@ -441,6 +508,15 @@ const Auth = () => {
                     </View>
                 </View>
             </ScrollView>
+
+            {/* Encryption Key Modal */}
+            <EncryptionKeyCard
+                isVisible={showEncryptionModal}
+                mode={encryptionMode}
+                onClose={handleEncryptionModalClose}
+                onKeyGenerated={handleKeyGenerated}
+                onKeyVerified={handleKeyVerified}
+            />
         </KeyboardAvoidingView>
     )
 }
