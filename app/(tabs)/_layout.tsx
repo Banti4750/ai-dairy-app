@@ -1,7 +1,54 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Tabs } from "expo-router";
-import { Pressable } from "react-native";
+import { Tabs, useRouter } from "expo-router";
+import { Alert, Pressable, View } from "react-native";
+
+// Header right component with search and settings
+const HeaderRight = ({ onSearch, onSettings }) => (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginRight: 16 }}>
+        <Pressable
+            onPress={onSearch}
+            style={{
+                padding: 8,
+                marginRight: 8,
+                borderRadius: 20,
+            }}
+            android_ripple={{ color: '#E5E7EB', borderless: true }}
+        >
+            <Ionicons name="search-outline" size={26} color="#111827" />
+        </Pressable>
+
+        <Pressable
+            onPress={onSettings}
+            style={{
+                padding: 8,
+                borderRadius: 20,
+            }}
+            android_ripple={{ color: '#E5E7EB', borderless: true }}
+        >
+            <MaterialIcons name="settings" size={26} color="#111827" />
+        </Pressable>
+    </View>
+);
+
+// Search handler function
+const handleSearch = () => {
+    Alert.alert(
+        "Search",
+        "Search functionality will be implemented here",
+        [{ text: "OK" }]
+    );
+    // Navigate to search screen or open search modal
+    // router.push('/search'); // Uncomment when you have a search screen
+};
+
+// Settings handler function
+const handleSettings = () => {
+    const router = useRouter()
+
+    // Navigate to settings screen or open settings modal
+    router.push('/setting/setting'); // Uncomment when you have a settings screen
+};
 
 export default function RootLayout() {
     return (
@@ -29,14 +76,23 @@ export default function RootLayout() {
                     backgroundColor: "#FFFFFF",
                     elevation: 0,
                     shadowOpacity: 0,
+                    borderBottomWidth: 1,
+                    borderBottomColor: "#E5E7EB",
                 },
                 headerTitleStyle: {
-                    fontSize: 18,
+                    fontSize: 26,
                     fontWeight: "600",
                     letterSpacing: -0.2,
                     color: "#111827",
                 },
-                headerTitleAlign: "center",
+
+                // Add header right component to all tabs
+                headerRight: () => (
+                    <HeaderRight
+                        onSearch={handleSearch}
+                        onSettings={handleSettings}
+                    />
+                ),
 
                 tabBarButton: (props) => (
                     <Pressable {...props} android_ripple={null} style={props.style}>
@@ -52,7 +108,7 @@ export default function RootLayout() {
                     tabBarIcon: ({ color }) => (
                         <MaterialIcons name="today" size={24} color={color} />
                     ),
-                    headerTitle: "Today's Focus",
+                    headerTitle: "Today's Diary",
                 }}
             />
 
@@ -81,24 +137,15 @@ export default function RootLayout() {
             <Tabs.Screen
                 name="mood"
                 options={{
-                    title: "Mood",
+                    title: "Insight",
                     tabBarIcon: ({ color }) => (
                         <MaterialIcons name="psychology" size={24} color={color} />
                     ),
-                    headerTitle: "AI Mood Check",
+                    headerTitle: "Insight",
                 }}
             />
 
-            <Tabs.Screen
-                name="profile"
-                options={{
-                    title: "Profile",
-                    tabBarIcon: ({ color }) => (
-                        <MaterialIcons name="person-outline" size={24} color={color} />
-                    ),
-                    headerTitle: "Profile & Streaks",
-                }}
-            />
+
         </Tabs>
     );
 }
