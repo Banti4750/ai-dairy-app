@@ -13,7 +13,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images",
+        "foregroundImage": "./assets/images/ai-diary-logo.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true
