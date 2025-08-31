@@ -1,11 +1,13 @@
 import { useAuth } from '@/context/AuthContext';
 import { decryptData } from '@/utils/cryptoEnDe';
 import { getStoredKey, KDFJoinKey } from '@/utils/kdfService';
+import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import React, { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
+    Image,
     RefreshControl,
     ScrollView,
     Text,
@@ -15,10 +17,12 @@ import {
 
 const Journal = () => {
     const { user } = useAuth();
+    const router = useRouter();
     const [diaryEntries, setDiaryEntries] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [expandedEntry, setExpandedEntry] = useState(null);
+    const [moodCache, setMoodCache] = useState({}); // Cache for mood data
 
     // Fetch diary entries from backend
     const fetchDiaryEntries = async () => {
@@ -40,11 +44,44 @@ const Journal = () => {
 
                 // Fixed: Access the correct path in the response
                 const entries = data.data?.entries || data.entries || [];
-                console.log('Entries to decrypt:', entries);
+                console.log('📥 Raw entries from API:', entries.length);
+                console.log('📥 First entry sample:', entries[0]); // Log first entry to see structure
 
                 // Decrypt and process entries
                 const decryptedEntries = await decryptEntries(entries);
-                setDiaryEntries(decryptedEntries);
+
+                // Fetch mood data for all entries
+                console.log('📊 Processing entries with moods...');
+                const entriesWithMoods = await Promise.all(
+                    decryptedEntries.map(async (entry, index) => {
+                        console.log(`🔄 Processing entry ${index + 1}/${decryptedEntries.length}:`, {
+                            id: entry._id,
+                            moodId: entry.moodId,
+                            title: entry.title
+                        });
+
+                        if (entry.moodId) {
+                            console.log('🎭 Fetching mood for entry:', entry._id, 'with moodId:', entry.moodId);
+                            const moodData = await getMoodDisplay(entry.moodId);
+                            console.log('🎭 Received mood data:', moodData);
+                            return {
+                                ...entry,
+                                moodData
+                            };
+                        } else {
+                            console.log('❌ No moodId for entry:', entry._id);
+                            return {
+                                ...entry,
+                                moodData: { iconURL: null, mood: 'Unknown' }
+                            };
+                        }
+                    })
+                );
+
+                console.log('✅ All entries processed with moods:', entriesWithMoods.length);
+
+                // FIXED: Set entriesWithMoods instead of decryptedEntries
+                setDiaryEntries(entriesWithMoods);
             } else {
                 const errorData = await response.text();
                 console.error('Failed to fetch diary entries:', response.status, errorData);
@@ -60,7 +97,7 @@ const Journal = () => {
     };
 
     // Decrypt diary entries
-    const decryptEntries = async (entries) => {
+    const decryptEntries = async (entries: any) => {
         try {
             const keyLocal = await getStoredKey();
             const derivedKey = await KDFJoinKey(keyLocal, user.email, user.encryptionKeySalt);
@@ -71,7 +108,7 @@ const Journal = () => {
             const totalEntries = entries.length;
 
             const decryptedEntries = await Promise.all(
-                entries.map(async (entry) => {
+                entries.map(async (entry: any) => {
                     try {
                         console.log('Decrypting entry:', entry._id);
 
@@ -135,7 +172,7 @@ const Journal = () => {
     };
 
     // Group entries by date
-    const groupEntriesByDate = (entries) => {
+    const groupEntriesByDate = (entries: any) => {
         const grouped = {};
 
         entries.forEach(entry => {
@@ -159,7 +196,7 @@ const Journal = () => {
     };
 
     // Format date for display
-    const formatDate = (dateString) => {
+    const formatDate = (dateString: any) => {
         const date = new Date(dateString);
         const today = new Date();
         const yesterday = new Date(today);
@@ -180,9 +217,54 @@ const Journal = () => {
     };
 
     // Get mood emoji - simplified since API doesn't return mood data
-    const getMoodDisplay = (moodId) => {
-        // Default emoji since mood data isn't in the API response
-        return '📝';
+    const getMoodDisplay = async (moodId: any) => {
+        console.log('🔍 Attempting to fetch mood for ID:', moodId);
+
+        // Check cache first
+        if (moodCache[moodId]) {
+            console.log('✅ Found mood in cache:', moodCache[moodId]);
+            return moodCache[moodId];
+        }
+
+        const token = await SecureStore.getItemAsync('authToken');
+        const url = `http://192.168.1.23:9000/api/mood/${moodId}`;
+
+        console.log('🌐 Making API call to:', url);
+        console.log('🔑 Token:', token ? 'Present' : 'Missing');
+
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            console.log('📡 Response status:', response.status);
+            console.log('📡 Response headers:', response.headers);
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('✅ Mood data fetched successfully:', data);
+
+                const moodData = {
+                    iconURL: data.mood?.moodIconURL,
+                    mood: data.mood?.mood || 'Unknown'
+                };
+
+                // Cache the result
+                setMoodCache(prev => ({ ...prev, [moodId]: moodData }));
+                return moodData;
+            } else {
+                const errorText = await response.text();
+                console.error('❌ Failed to fetch mood. Status:', response.status, 'Response:', errorText);
+                return { iconURL: null, mood: 'Unknown' };
+            }
+        } catch (error) {
+            console.error('💥 Error fetching mood:', error);
+            return { iconURL: null, mood: 'Unknown' };
+        }
     };
 
     const onRefresh = () => {
@@ -190,7 +272,7 @@ const Journal = () => {
         fetchDiaryEntries();
     };
 
-    const toggleExpanded = (entryId) => {
+    const toggleExpanded = (entryId: any) => {
         setExpandedEntry(expandedEntry === entryId ? null : entryId);
     };
 
@@ -264,27 +346,48 @@ const Journal = () => {
                                     activeOpacity={0.7}
                                 >
                                     {/* Entry Header */}
-                                    <View className="flex-row items-center justify-between mb-3">
+                                    <TouchableOpacity
+                                        className="flex-row items-center justify-between mb-3"
+                                        onPress={() => router.push(`/Diary/${entry._id}`)}
+                                        activeOpacity={0.7}
+                                    >
                                         <View className="flex-row items-center flex-1">
-                                            <Text className="text-2xl mr-3">
-                                                {getMoodDisplay()}
-                                            </Text>
+                                            {/* FIXED: Display mood icon or emoji */}
+                                            {entry.moodData?.iconURL ? (
+                                                <Image
+                                                    source={{ uri: entry.moodData.iconURL }}
+                                                    className="w-8 h-8 mr-3"
+                                                    resizeMode="contain"
+                                                />
+                                            ) : (
+                                                <Text className="text-2xl mr-3">
+                                                    📝
+                                                </Text>
+                                            )}
                                             <View className="flex-1">
                                                 <Text className="text-base font-semibold text-gray-800" numberOfLines={1}>
                                                     {entry.title}
                                                 </Text>
-                                                <Text className="text-sm text-gray-500">
-                                                    {new Date(entry.createdAt).toLocaleTimeString('en-US', {
-                                                        hour: '2-digit',
-                                                        minute: '2-digit'
-                                                    })}
-                                                </Text>
+                                                <View className="flex-row items-center">
+                                                    <Text className="text-sm text-gray-500">
+                                                        {new Date(entry.createdAt).toLocaleTimeString('en-US', {
+                                                            hour: '2-digit',
+                                                            minute: '2-digit'
+                                                        })}
+                                                    </Text>
+                                                    {/* FIXED: Display mood name */}
+                                                    {entry.moodData?.mood && entry.moodData.mood !== 'Unknown' && (
+                                                        <Text className="text-sm text-blue-500 ml-2">
+                                                            • {entry.moodData.mood}
+                                                        </Text>
+                                                    )}
+                                                </View>
                                             </View>
                                         </View>
                                         <Text className="text-gray-400 text-lg">
                                             {expandedEntry === (entry._id || entry.id) ? '▲' : '▼'}
                                         </Text>
-                                    </View>
+                                    </TouchableOpacity>
 
                                     {/* Entry Content */}
                                     <View className={`${expandedEntry === (entry._id || entry.id) ? 'block' : 'hidden'}`}>
@@ -298,6 +401,12 @@ const Journal = () => {
                                             <Text className="text-sm text-gray-500">
                                                 Entry Date: {new Date(entry.entryDate || entry.createdAt).toLocaleString()}
                                             </Text>
+                                            {/* FIXED: Show mood in expanded view */}
+                                            {entry.moodData?.mood && entry.moodData.mood !== 'Unknown' && (
+                                                <Text className="text-sm text-gray-500 mt-1">
+                                                    Mood: {entry.moodData.mood}
+                                                </Text>
+                                            )}
                                         </View>
                                     </View>
 
