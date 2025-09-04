@@ -1,8 +1,10 @@
 import { Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
 const Setting = () => {
+    const router = useRouter();
     const handlePress = (item) => {
         console.log(`${item} pressed`);
         // Add navigation or functionality here
@@ -48,7 +50,7 @@ const Setting = () => {
                     <MenuItem
                         icon="person-outline"
                         title="Profile"
-                        onPress={() => handlePress('Profile')}
+                        onPress={() => router.push('/SettingAllPages/Profile/page')}
                         iconColor="#4F46E5"
                     />
                     <MenuItem
