@@ -47,7 +47,7 @@ const handleSettings = () => {
     const router = useRouter()
 
     // Navigate to settings screen or open settings modal
-    router.push('/setting/setting'); // Uncomment when you have a settings screen
+    router.push('/Setting/setting'); // Uncomment when you have a settings screen
 };
 
 export default function RootLayout() {
