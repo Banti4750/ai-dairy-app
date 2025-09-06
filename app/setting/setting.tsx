@@ -62,19 +62,19 @@ const Setting = () => {
                     <MenuItem
                         icon="target-outline"
                         title="Goals"
-                        onPress={() => handlePress('Goals')}
+                        onPress={() => router.push('/SettingAllPages/goals/page')}
                         iconColor="#F59E0B"
                     />
                     <MenuItem
                         icon="flag-outline"
                         title="Purpose"
-                        onPress={() => handlePress('Purpose')}
+                        onPress={() => router.push('/SettingAllPages/purpose/page')}
                         iconColor="#EF4444"
                     />
                     <MenuItem
                         icon="information-circle-outline"
                         title="About Me"
-                        onPress={() => handlePress('About Me')}
+                        onPress={() => router.push('/SettingAllPages/aboutme/page')}
                         iconColor="#8B5CF6"
                         isLast={true}
                     />
