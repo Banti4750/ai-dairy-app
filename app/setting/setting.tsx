@@ -56,7 +56,7 @@ const Setting = () => {
                     <MenuItem
                         icon="notifications-outline"
                         title="Notifications"
-                        onPress={() => handlePress('Notifications')}
+                        onPress={() => router.push('/SettingAllPages/Notification/page')}
                         iconColor="#10B981"
                     />
                     <MenuItem
@@ -86,7 +86,7 @@ const Setting = () => {
                     <MenuItem
                         icon="star-outline"
                         title="Upgrade to Premium"
-                        onPress={() => handlePress('Upgrade to Premium')}
+                        onPress={() => router.push('/SettingAllPages/Upgrade/page')}
                         iconColor="#F59E0B"
                         isLast={true}
                     />
@@ -98,19 +98,19 @@ const Setting = () => {
                     <MenuItem
                         icon="help-circle-outline"
                         title="Help & Support"
-                        onPress={() => handlePress('Help & Support')}
+                        onPress={() => router.push('/SettingAllPages/Help/page')}
                         iconColor="#06B6D4"
                     />
                     <MenuItem
                         icon="document-text-outline"
                         title="Terms of Service"
-                        onPress={() => handlePress('Terms of Service')}
+                        onPress={() => router.push('/SettingAllPages/Terms/page')}
                         iconColor="#6B7280"
                     />
                     <MenuItem
                         icon="share-outline"
                         title="Share App"
-                        onPress={() => handlePress('Share App')}
+                        onPress={() => router.push('/SettingAllPages/ShareApp/page')}
                         iconColor="#10B981"
                         isLast={true}
                     />
