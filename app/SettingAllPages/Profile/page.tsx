@@ -1,3 +1,4 @@
+import { useAuth } from '@/context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
@@ -14,16 +15,17 @@ const Profile = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showImageOptions, setShowImageOptions] = useState(false);
-
+    const { user } = useAuth();
+    console.log(user)
     const [profileData, setProfileData] = useState({
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-        phone: '+1 (555) 123-4567',
-        bio: 'Expressing my thoughts and emotions through daily reflections. Life is beautiful! 🌟',
-        joinDate: 'January 2024',
-        dob: 'January 15, 2004',
-        gender: 'Male',
-        profileImage: null
+        name: user.name,
+        email: user.email,
+        phone: user.phone || 'Not Updated',
+        bio: user.bio,
+        joinDate: user.joinDate,
+        dob: user.dob || 'Not Updated',
+        gender: user.gender || 'Male',
+        profileImage: user.profileImage || null,
     });
 
     const [tempDob, setTempDob] = useState(profileData.dob);
