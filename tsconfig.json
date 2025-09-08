@@ -17,6 +17,7 @@
     "components/Auth.tsx",
     "context/AuthContext.js",
     "utils/demo.js",
-    "utils/CryptoService.js"
+    "utils/CryptoService.js",
+    "app/SettingAllPages/Profile/page.jsx"
   ]
 }
