@@ -1,14 +1,27 @@
+import { useAuth } from '@/context/AuthContext';
 import { Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
 const Setting = () => {
     const router = useRouter();
-    const handlePress = (item) => {
-        console.log(`${item} pressed`);
-        // Add navigation or functionality here
+    const { logout, user } = useAuth();
+
+    const handleLogout = async () => {
+        try {
+            const result = await logout();
+            if (result.success) {
+                Alert.alert('Success', 'Logged out successfully');
+                // Will automatically redirect to Auth screen
+            } else {
+                Alert.alert('Error', result.error);
+            }
+        } catch (error) {
+            Alert.alert('Error', 'Failed to logout');
+        }
     };
+
 
     const MenuItem = ({ icon, title, onPress, iconFamily = 'Ionicons', isLast = false, iconColor = '#4F46E5' }) => {
         const IconComponent = iconFamily === 'MaterialIcons' ? MaterialIcons :
@@ -119,7 +132,7 @@ const Setting = () => {
                 {/* Logout Button */}
                 <TouchableOpacity
                     className="flex-row items-center justify-center bg-white rounded-2xl py-5 shadow-sm border border-red-100"
-                    onPress={() => handlePress('Logout')}
+                    onPress={handleLogout}
                     activeOpacity={0.8}
                 >
                     <View className="w-10 h-10 bg-red-50 rounded-full items-center justify-center mr-3">
