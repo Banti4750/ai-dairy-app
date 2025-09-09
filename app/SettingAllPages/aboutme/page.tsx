@@ -1,26 +1,105 @@
 import TakeData from '@/components/Takedata';
-import React from 'react';
+import * as SecureStore from 'expo-secure-store';
+import React, { useEffect, useState } from 'react';
+import { Alert } from 'react-native';
 
 interface AboutProps {
     onAboutSubmit?: (about: string) => void;
 }
 
+const BASE_URL = 'http://192.168.1.23:9000/api/userdetails';
+
 const About: React.FC<AboutProps> = ({ onAboutSubmit }) => {
-    const handleSubmit = (value: string) => {
-        console.log('About submitted:', value);
+    const [aboutDB, setAboutDB] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(true);
 
-        // Save about info to your preferred storage/state management
-        // Examples:
-        // - AsyncStorage.setItem('userAbout', value);
-        // - dispatch(setAbout(value));
-        // - saveToAPI(value);
+    const fetchAbout = async () => {
+        try {
+            const token = await SecureStore.getItemAsync('authToken');
 
-        if (onAboutSubmit) {
-            onAboutSubmit(value);
+            if (!token) {
+                console.error('No auth token found');
+                setLoading(false);
+                return;
+            }
+
+            const response = await fetch(`${BASE_URL}/aboutme/get`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Failed to get about info:', errorData.message);
+                setLoading(false);
+                return;
+            }
+
+            const result = await response.json();
+            console.log('Fetched about info:', result);
+
+            // Set about from DB or empty string if null
+            setAboutDB(result.aboutme || '');
+        } catch (error) {
+            console.error('Error getting about info:', error);
+        } finally {
+            setLoading(false);
         }
+    };
 
-        // You might want to navigate to next screen or show success message
-        // navigation.navigate('Dashboard') or showSuccessToast()
+    useEffect(() => {
+        fetchAbout();
+    }, []);
+
+    const handleSubmit = async (value: string) => {
+        try {
+            const token = await SecureStore.getItemAsync('authToken');
+
+            if (!token) {
+                console.error('No auth token found');
+                return;
+            }
+
+            console.log('About submitted:', value);
+
+            const response = await fetch(`${BASE_URL}/aboutme/add-update`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    aboutme: value
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Failed to update about info:', errorData.message);
+                return;
+            }
+
+            const result = await response.json();
+            console.log('About info updated successfully:', result);
+            Alert.alert('Success', '✨ AboutMe updated successfully!', [
+                { text: 'OK', style: 'default' }
+            ]);
+
+            // Update local state with new about info
+            setAboutDB(value);
+
+            if (onAboutSubmit) {
+                onAboutSubmit(value);
+            }
+
+            // You might want to navigate to next screen or show success message
+            // navigation.navigate('Dashboard') or showSuccessToast()
+        } catch (error) {
+            console.error('Error submitting about info:', error);
+        }
     };
 
     return (
@@ -32,6 +111,8 @@ const About: React.FC<AboutProps> = ({ onAboutSubmit }) => {
             buttonText="Complete Profile"
             multiline={true}
             maxLength={450}
+            loading={loading}
+            initialValue={aboutDB}
         />
     );
 };

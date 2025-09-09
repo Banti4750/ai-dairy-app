@@ -18,6 +18,7 @@
     "context/AuthContext.js",
     "utils/demo.js",
     "utils/CryptoService.js",
-    "app/SettingAllPages/Profile/page.jsx"
+    "app/SettingAllPages/Profile/page.jsx",
+    "app/(tabs)/create.jsx"
   ]
 }

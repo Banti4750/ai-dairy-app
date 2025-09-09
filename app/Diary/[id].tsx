@@ -3,10 +3,11 @@ import { decryptData, encryptData } from '@/utils/cryptoEnDe';
 import { getStoredKey, KDFJoinKey } from '@/utils/kdfService';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
+    Keyboard,
     ScrollView,
     Text,
     TextInput,
@@ -27,6 +28,26 @@ const page = () => {
     const [editTitle, setEditTitle] = useState('');
     const [editContent, setEditContent] = useState('');
     const [saving, setSaving] = useState(false);
+
+    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+    const [focusedField, setFocusedField] = useState(null);
+
+    const scrollViewRef = useRef(null);
+
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+            setKeyboardVisible(true);
+        });
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+            setKeyboardVisible(false);
+            setFocusedField(null);
+        });
+
+        return () => {
+            keyboardDidHideListener?.remove();
+            keyboardDidShowListener?.remove();
+        };
+    }, []);
 
     async function fetchDiaryById(id: any) {
         const token = await SecureStore.getItemAsync('authToken');
@@ -276,7 +297,14 @@ const page = () => {
                 </View>
             </View>
 
-            <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+            <ScrollView
+                ref={scrollViewRef}
+                className="flex-1"
+                contentContainerStyle={{ paddingBottom: isKeyboardVisible ? 350 : 50 }}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+                automaticallyAdjustKeyboardInsets={true}
+            >
                 <View className="px-6 py-8">
                     {/* Decryption Error */}
                     {decryptionError && (
