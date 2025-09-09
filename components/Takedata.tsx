@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
+    ActivityIndicator,
     SafeAreaView,
     StatusBar,
     Text,
@@ -16,6 +17,8 @@ interface TakeDataProps {
     buttonText?: string;
     multiline?: boolean;
     maxLength?: number;
+    loading?: boolean;
+    initialValue?: string;
 }
 
 const TakeData: React.FC<TakeDataProps> = ({
@@ -25,16 +28,38 @@ const TakeData: React.FC<TakeDataProps> = ({
     handleSubmit,
     buttonText = "Submit",
     multiline = false,
-    maxLength = 500
+    maxLength = 500,
+    loading = false,
+    initialValue = ''
 }) => {
     const [value, setValue] = React.useState('');
+
+    // Set initial value when it's loaded
+    useEffect(() => {
+        if (initialValue) {
+            setValue(initialValue);
+        }
+    }, [initialValue]);
 
     const onSubmit = () => {
         if (value.trim()) {
             handleSubmit(value.trim());
-            setValue('');
+            // Don't clear value after submit in case user wants to edit
         }
     };
+
+    // Show loading spinner while fetching initial data
+    if (loading) {
+        return (
+            <SafeAreaView className="flex-1 bg-white">
+                <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+                <View className="flex-1 justify-center items-center">
+                    <ActivityIndicator size="large" color="#1F2937" />
+                    <Text className="mt-4 text-gray-600 text-base">Loading...</Text>
+                </View>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView className="flex-1 bg-white">
