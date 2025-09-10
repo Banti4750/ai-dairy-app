@@ -15,29 +15,8 @@ import {
     View
 } from 'react-native';
 
-// Sample inspirational quotes
-const dailyQuotes = [
-    {
-        text: "The pages of your diary are the mirrors of your soul.",
-        author: "Unknown"
-    },
-    {
-        text: "Writing is the painting of the voice.",
-        author: "Voltaire"
-    },
-    {
-        text: "Today is your opportunity to build the tomorrow you want.",
-        author: "Ken Poirot"
-    },
-    {
-        text: "A diary is the secret friend who never judges, just listens.",
-        author: "Unknown"
-    },
-    {
-        text: "Your story is worth telling, your feelings are worth expressing.",
-        author: "Unknown"
-    }
-];
+
+
 
 const TodayTab = () => {
     const { user } = useAuth();
@@ -47,15 +26,31 @@ const TodayTab = () => {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [hasEntry, setHasEntry] = useState(false);
-    const [dailyQuote, setDailyQuote] = useState(dailyQuotes[0]);
+    const [dailyQuote, setDailyQuote] = useState([]);
 
-    // Get a random quote each day
+
+
+    const fetchDailyQuote = async () => {
+        try {
+            const response = await fetch("http://192.168.1.23:9000/api/dailyquotes", {
+                method: "GET"
+            })
+
+            const data = await response.json()
+            if (response.ok) {
+                setDailyQuote(data.dailyQuote)
+            } else {
+                Alert.alert('Error', data.message || 'Failed to fetch  dailyQuote');
+            }
+        } catch (error) {
+            console.error('dailyQuote fetch error:', error);
+            Alert.alert('Error', 'Network error. Please check your connection.');
+        }
+    }
+
     useEffect(() => {
-        const today = new Date();
-        const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-        const quoteIndex = dayOfYear % dailyQuotes.length;
-        setDailyQuote(dailyQuotes[quoteIndex]);
-    }, []);
+        fetchDailyQuote();
+    }, [])
 
     // Get today's date in YYYY-MM-DD format
     const getTodayDate = () => {
@@ -219,7 +214,7 @@ const TodayTab = () => {
                         </View>
                         <View className="flex-1">
                             <Text className="text-lg text-gray-800 italic mb-2">
-                                "{dailyQuote.text}"
+                                "{dailyQuote.quote}"
                             </Text>
                             <Text className="text-sm text-gray-500">— {dailyQuote.author}</Text>
                         </View>

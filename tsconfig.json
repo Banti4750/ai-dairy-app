@@ -20,6 +20,7 @@
     "utils/CryptoService.js",
     "app/SettingAllPages/Profile/page.jsx",
     "app/(tabs)/create.jsx",
-    "app/(tabs)/today.jsx"
+    "app/(tabs)/today.jsx",
+    "app/SettingAllPages/Help/page.jsx"
   ]
 }
