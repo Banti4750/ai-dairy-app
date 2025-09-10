@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Alert,
     Linking,
@@ -11,50 +11,37 @@ import {
     View,
 } from 'react-native';
 
-interface FAQ {
-    question: string;
-    answer: string;
-}
+
+const BASE_URL = 'http://192.168.1.23:9000/api/faq';
 
 const HelpSupport = () => {
-    const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
+    const [expandedFAQ, setExpandedFAQ] = useState(null);
     const [supportMessage, setSupportMessage] = useState('');
     const [userEmail, setUserEmail] = useState('');
+    const [faqs, setFaqs] = useState([]);
 
-    const faqs: FAQ[] = [
-        {
-            question: 'How does the AI diary analysis work?',
-            answer: 'Our AI analyzes your diary entries to identify patterns in your mood, goals, and personal growth. It uses natural language processing to understand the context and sentiment of your writing, providing personalized insights and suggestions.'
-        },
-        {
-            question: 'Is my diary data private and secure?',
-            answer: 'Yes, absolutely. All your diary entries are encrypted end-to-end and stored securely. We never share your personal data with third parties. Your privacy is our top priority.'
-        },
-        {
-            question: 'Can I export my diary entries?',
-            answer: 'Yes, premium users can export their entries in multiple formats including PDF, TXT, and CSV. Free users can export in basic text format.'
-        },
-        {
-            question: 'How do I cancel my premium subscription?',
-            answer: 'You can cancel your subscription anytime from your device\'s subscription settings (App Store or Google Play Store). The cancellation will take effect at the end of your current billing period.'
-        },
-        {
-            question: 'Can I use the app offline?',
-            answer: 'Yes, you can write and view your diary entries offline. However, AI analysis and sync features require an internet connection.'
-        },
-        {
-            question: 'How often should I write in my diary?',
-            answer: 'There\'s no strict rule! Many users find daily writing helpful, but even weekly entries can provide valuable insights. The AI works better with more data, so regular entries will give you better analysis.'
-        },
-        {
-            question: 'Can I set reminders to write?',
-            answer: 'Yes, premium users can set custom reminders at their preferred times. This helps build a consistent journaling habit.'
-        },
-        {
-            question: 'What if I lose my device?',
-            answer: 'If you\'re a premium user with cloud sync enabled, your data is safely backed up. Simply log in to your account on a new device to restore your entries.'
+    const fetchFaq = async () => {
+        try {
+            const response = await fetch(`${BASE_URL}/all`, {
+                method: 'GET',
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setFaqs(data.faqs)
+            } else {
+                Alert.alert('Error', data.message || 'Failed to fetch FAQ');
+            }
+        } catch (error) {
+            console.error('FAQ fetch error:', error);
+            Alert.alert('Error', 'Network error. Please check your connection.');
         }
-    ];
+    }
+
+    useEffect(() => {
+        fetchFaq()
+    }, []);
 
     const contactOptions = [
         {
@@ -101,7 +88,7 @@ const HelpSupport = () => {
         );
     };
 
-    const toggleFAQ = (index: number) => {
+    const toggleFAQ = (index) => {
         setExpandedFAQ(expandedFAQ === index ? null : index);
     };
 
