@@ -32,14 +32,19 @@ const Mood = () => {
     };
 
     return (
-        <View style={{ padding: 20 }}>
-            {user && (
-                <Text style={{ fontSize: 18, marginBottom: 20 }}>
-                    Welcome, {token}!
-                </Text>
-            )}
-            <Button title="Logout" onPress={handleLogout} />
-        </View>
+        <>
+
+            <View style={{ padding: 20 }}>
+                {user && (
+                    <Text style={{ fontSize: 18, marginBottom: 20 }}>
+                        Welcome, {token}!
+                    </Text>
+                )}
+                <Button title="Logout" onPress={handleLogout} />
+            </View>
+
+
+        </>
     );
 };
 

@@ -1,3 +1,4 @@
+import CalendarViewTest from '@/components/CalendarView';
 import { useAuth } from '@/context/AuthContext';
 import { decryptData } from '@/utils/cryptoEnDe';
 import { getStoredKey, KDFJoinKey } from '@/utils/kdfService';
@@ -359,6 +360,8 @@ const TodayTab = () => {
                     </View>
                 </View>
             )}
+
+            <CalendarViewTest />
 
             {/* Bottom Spacing */}
             <View className="h-20"></View>

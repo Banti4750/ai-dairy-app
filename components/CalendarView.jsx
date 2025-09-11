@@ -1,53 +1,49 @@
-import { useAuth } from '@/context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
-import * as SecureStore from 'expo-secure-store';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 
-const CalendarView = () => {
-    const { user } = useAuth();
+const CalendarViewTest = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [entries, setEntries] = useState({});
     const [loading, setLoading] = useState(true);
     const [selectedDate, setSelectedDate] = useState(null);
 
-    // Get all entries for the current month
+    // Dummy data generator
+    const generateDummyEntries = () => {
+        const dummyEntries = {};
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth() + 1;
+
+        // Generate some random entries for the current month
+        const entriesToCreate = [
+            1, 3, 5, 8, 12, 15, 18, 22, 25, 28 // Sample days with entries
+        ];
+
+        entriesToCreate.forEach(day => {
+            // Only add entries for valid days of the current month
+            const daysInMonth = new Date(year, month, 0).getDate();
+            if (day <= daysInMonth) {
+                const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                dummyEntries[dateStr] = true;
+            }
+        });
+
+        return dummyEntries;
+    };
+
+    // Simulate API call with dummy data
     const fetchEntriesForMonth = async () => {
         try {
             setLoading(true);
-            const token = await SecureStore.getItemAsync('authToken');
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth() + 1;
 
-            const response = await fetch(`http://192.168.1.23:9000/api/diary/entries?year=${year}&month=${month}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
+            // Simulate network delay
+            await new Promise(resolve => setTimeout(resolve, 300));
 
-            if (response.ok) {
-                const data = await response.json();
-                const entriesData = data.data?.entries || data.entries || [];
+            const dummyEntries = generateDummyEntries();
+            setEntries(dummyEntries);
 
-                // Create a map of dates that have entries
-                const entriesMap = {};
-                entriesData.forEach(entry => {
-                    const entryDate = entry.entryDate?.split('T')[0] || entry.createdAt?.split('T')[0];
-                    if (entryDate) {
-                        entriesMap[entryDate] = true;
-                    }
-                });
-
-                setEntries(entriesMap);
-            } else {
-                console.error('Failed to fetch entries:', response.status);
-                Alert.alert('Error', 'Failed to load entries');
-            }
         } catch (error) {
-            console.error('Error fetching entries:', error);
-            Alert.alert('Error', 'Something went wrong while loading entries');
+            console.error('Error generating dummy entries:', error);
         } finally {
             setLoading(false);
         }
@@ -109,7 +105,8 @@ const CalendarView = () => {
     const handleDateSelect = (day) => {
         const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
         setSelectedDate(newDate);
-        // You could add navigation to that day's entry here if it exists
+        console.log('Selected date:', newDate.toISOString().split('T')[0]);
+        console.log('Has entry:', hasEntry(day));
     };
 
     const renderCalendarDays = () => {
@@ -119,7 +116,7 @@ const CalendarView = () => {
 
         // Add empty cells for days before the first day of the month
         for (let i = 0; i < firstDayOfMonth; i++) {
-            days.push(<View key={`empty-${i}`} className="w-10 h-10 m-1" />);
+            days.push(<View key={`empty-${i}`} style={{ width: 40, height: 40, margin: 4 }} />);
         }
 
         // Add cells for each day of the month
@@ -131,21 +128,45 @@ const CalendarView = () => {
             days.push(
                 <TouchableOpacity
                     key={`day-${day}`}
-                    className={`w-10 h-10 rounded-full m-1 items-center justify-center
-                        ${dayIsToday ? 'bg-blue-100' : ''}
-                        ${dayIsSelected ? 'bg-blue-500' : ''}
-                        ${dayHasEntry ? 'border-2 border-green-500' : 'border border-gray-200'}
-                    `}
+                    style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 20,
+                        margin: 4,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: dayIsSelected ? '#333' : dayIsToday ? '#E5E5E5' : 'transparent',
+                        borderWidth: 1,
+                        borderColor: '#E5E5E5',
+                        position: 'relative'
+                    }}
                     onPress={() => handleDateSelect(day)}
                 >
-                    <Text className={`
-                        text-center text-sm font-medium
-                        ${dayIsSelected ? 'text-white' : dayIsToday ? 'text-blue-600' : 'text-gray-800'}
-                    `}>
+                    <Text style={{
+                        fontSize: 14,
+                        fontWeight: '500',
+                        color: dayIsSelected ? 'white' : '#333'
+                    }}>
                         {day}
                     </Text>
                     {dayHasEntry && (
-                        <View className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full" />
+                        <View style={{
+                            position: 'absolute',
+                            width: '100%',
+                            height: '100%',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }}>
+
+                            <View style={{
+                                width: 35,
+                                height: 1,
+                                color: '#666',
+                                backgroundColor: '#333',
+                                transform: [{ rotate: '-45deg' }],
+                                position: 'absolute'
+                            }} />
+                        </View>
                     )}
                 </TouchableOpacity>
             );
@@ -156,77 +177,109 @@ const CalendarView = () => {
 
     if (loading) {
         return (
-            <View className="flex-1 justify-center items-center p-4 bg-white rounded-xl">
-                <ActivityIndicator size="large" color="#3B82F6" />
-                <Text className="text-gray-600 mt-2">Loading calendar...</Text>
+            <View style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: 16,
+                backgroundColor: 'white',
+                borderRadius: 12,
+                margin: 16
+            }}>
+                <ActivityIndicator size="large" color="#333" />
+                <Text style={{ color: '#666', marginTop: 8 }}>Loading calendar...</Text>
             </View>
         );
     }
 
     return (
-        <View className="bg-white rounded-xl p-4 shadow-sm">
+        <View style={{
+            backgroundColor: 'white',
+            borderRadius: 12,
+            padding: 16,
+            margin: 16,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3
+        }}>
+
+
             {/* Calendar Header */}
-            <View className="flex-row justify-between items-center mb-4">
-                <TouchableOpacity onPress={() => navigateMonth('prev')} className="p-2">
-                    <Ionicons name="chevron-back" size={24} color="#4B5563" />
+            <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 16
+            }}>
+                <TouchableOpacity onPress={() => navigateMonth('prev')} style={{ padding: 8 }}>
+                    <Ionicons name="chevron-back" size={24} color="#333" />
                 </TouchableOpacity>
 
-                <Text className="text-lg font-semibold text-gray-800">
+                <Text style={{ fontSize: 18, fontWeight: '600', color: '#333' }}>
                     {formatMonthYear(currentDate)}
                 </Text>
 
-                <TouchableOpacity onPress={() => navigateMonth('next')} className="p-2">
-                    <Ionicons name="chevron-forward" size={24} color="#4B5563" />
+                <TouchableOpacity onPress={() => navigateMonth('next')} style={{ padding: 8 }}>
+                    <Ionicons name="chevron-forward" size={24} color="#333" />
                 </TouchableOpacity>
             </View>
 
             {/* Week Days Header */}
-            <View className="flex-row justify-between mb-2">
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                    <Text key={day} className="text-center text-gray-500 font-medium w-10 m-1">
+                    <Text key={day} style={{
+                        textAlign: 'center',
+                        color: '#666',
+                        fontWeight: '500',
+                        width: 40,
+                        margin: 4
+                    }}>
                         {day}
                     </Text>
                 ))}
             </View>
 
             {/* Calendar Grid */}
-            <View className="flex-row flex-wrap justify-between">
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
                 {renderCalendarDays()}
             </View>
 
             {/* Legend */}
-            <View className="flex-row justify-center mt-6 space-x-6">
-                <View className="flex-row items-center">
-                    <View className="w-3 h-3 bg-green-500 rounded-full mr-1" />
-                    <Text className="text-xs text-gray-600">Entry exists</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 24, flexWrap: 'wrap' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 16, marginBottom: 8 }}>
+                    <View style={{
+                        width: 16,
+                        height: 16,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginRight: 4
+                    }}>
+
+                        <View style={{
+                            width: 12,
+                            height: 1,
+                            backgroundColor: '#333',
+                            transform: [{ rotate: '-45deg' }],
+                            position: 'absolute'
+                        }} />
+                    </View>
+                    <Text style={{ fontSize: 12, color: '#666' }}>Entry exists</Text>
                 </View>
-                <View className="flex-row items-center">
-                    <View className="w-3 h-3 bg-blue-100 rounded-full mr-1" />
-                    <Text className="text-xs text-gray-600">Today</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 16, marginBottom: 8 }}>
+                    <View style={{ width: 12, height: 12, backgroundColor: '#E5E5E5', borderRadius: 6, marginRight: 4 }} />
+                    <Text style={{ fontSize: 12, color: '#666' }}>Today</Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                    <View style={{ width: 12, height: 12, backgroundColor: '#333', borderRadius: 6, marginRight: 4 }} />
+                    <Text style={{ fontSize: 12, color: '#666' }}>Selected</Text>
                 </View>
             </View>
 
-            {/* Selected Date Info */}
-            {selectedDate && (
-                <View className="mt-6 p-3 bg-blue-50 rounded-lg">
-                    <Text className="text-center text-blue-800 font-medium">
-                        {selectedDate.toLocaleDateString('en-US', {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                        })}
-                    </Text>
-                    <Text className="text-center text-blue-600 mt-1">
-                        {hasEntry(selectedDate.getDate())
-                            ? 'You have an entry for this day'
-                            : 'No entry for this day'
-                        }
-                    </Text>
-                </View>
-            )}
+
         </View>
     );
 };
 
-export default CalendarView;
+export default CalendarViewTest;
