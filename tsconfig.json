@@ -20,7 +20,6 @@
     "utils/CryptoService.js",
     "app/SettingAllPages/Profile/page.jsx",
     "app/(tabs)/create.jsx",
-    "app/(tabs)/today.jsx",
-    "components/CalendarView.jsx"
+    "app/(tabs)/today.jsx"
   ]
 }
