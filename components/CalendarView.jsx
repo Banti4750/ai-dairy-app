@@ -1,6 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as SecureStore from 'expo-secure-store';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
+
+const BASE_URL = 'http://192.168.1.23:9000/api/diary';
 
 const CalendarViewTest = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -8,46 +11,47 @@ const CalendarViewTest = () => {
     const [loading, setLoading] = useState(true);
     const [selectedDate, setSelectedDate] = useState(null);
 
-    // Dummy data generator
-    const generateDummyEntries = () => {
-        const dummyEntries = {};
-        const year = currentDate.getFullYear();
-        const month = currentDate.getMonth() + 1;
 
-        // Generate some random entries for the current month
-        const entriesToCreate = [
-            1, 3, 5, 8, 12, 15, 18, 22, 25, 28 // Sample days with entries
-        ];
-
-        entriesToCreate.forEach(day => {
-            // Only add entries for valid days of the current month
-            const daysInMonth = new Date(year, month, 0).getDate();
-            if (day <= daysInMonth) {
-                const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                dummyEntries[dateStr] = true;
-            }
-        });
-
-        return dummyEntries;
-    };
-
-    // Simulate API call with dummy data
     const fetchEntriesForMonth = async () => {
         try {
             setLoading(true);
+            const token = await SecureStore.getItemAsync('authToken');
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth() + 1;
 
-            // Simulate network delay
-            await new Promise(resolve => setTimeout(resolve, 300));
+            // Call your backend API
+            const response = await fetch(
+                `${BASE_URL}/calendar?month=${month}&year=${year}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    }
+                }
+            );
 
-            const dummyEntries = generateDummyEntries();
-            setEntries(dummyEntries);
+            const result = await response.json();
 
+            if (response.ok) {
+                // Transform response into dictionary { "YYYY-MM-DD": true }
+                const mappedEntries = {};
+                result.data.forEach(entry => {
+                    const dateObj = new Date(entry.entryDate);
+                    const dateStr = dateObj.toISOString().split("T")[0]; // "2025-09-11"
+                    mappedEntries[dateStr] = true;
+                });
+                setEntries(mappedEntries);
+            } else {
+                console.error("API error:", result.message);
+            }
         } catch (error) {
-            console.error('Error generating dummy entries:', error);
+            console.error("Error fetching entries:", error);
         } finally {
             setLoading(false);
         }
     };
+
 
     useEffect(() => {
         fetchEntriesForMonth();
@@ -97,10 +101,12 @@ const CalendarViewTest = () => {
         );
     };
 
+
     const hasEntry = (day) => {
         const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         return entries[dateStr];
     };
+
 
     const handleDateSelect = (day) => {
         const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
