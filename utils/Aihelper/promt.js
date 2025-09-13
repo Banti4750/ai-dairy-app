@@ -1,9 +1,24 @@
-const createMentalHealthPrompt = (entries, userProfile, timeframe) => {
-    const entriesText = entries.map(entry =>
-        `Date: ${entry.date}, Mood: ${entry.mood}/10, Title: ${entry.title}, Content: ${entry.content}`
-    ).join('\n');
 
-    return `
+
+
+const calculateAge = (dob) => {
+  if (!dob) return null;
+  const today = new Date();
+  const birthDate = new Date(dob);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+};
+
+const createMentalHealthPrompt = (entries, userProfile, timeframe) => {
+  const entriesText = entries.map(entry =>
+    `Date: ${entry.date}, Mood: ${entry.mood}/10, Title: ${entry.title}, Content: ${entry.content}`
+  ).join('\n');
+
+  return `
 You are a professional mental health analysis AI. Analyze the following diary entries for patterns related to depression, anxiety, stress, and general mood over ${timeframe}.
 
 USER PROFILE:
@@ -91,7 +106,7 @@ Be specific, compassionate, and evidence-based. Focus on actionable insights and
 // ===============================
 
 const createPredictivePrompt = (historicalAnalyses, currentTrends, userProfile) => {
-    return `
+  return `
 Based on the following mental health patterns, provide predictive insights:
 
 HISTORICAL ANALYSES: ${JSON.stringify(historicalAnalyses)}
