@@ -14,13 +14,11 @@ import {
     View
 } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
-// import { checkCrisisIndicators, getComprehensiveAnalysis } from './mentalHealthAPI';
+import { getComprehensiveAnalysis } from '../../utils/Aihelper/clientForAi.js';
 
 const { width } = Dimensions.get('window');
 
-// ===============================
-// 1. MAIN MENTAL HEALTH DASHBOARD
-// ===============================
+
 
 const mockAnalysisData = {
     analyses: {
@@ -177,6 +175,7 @@ const mockAnalysisData = {
 };
 
 
+
 export const MentalHealthDashboard = () => {
     const [analysisData, setAnalysisData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -189,17 +188,17 @@ export const MentalHealthDashboard = () => {
     const loadAnalysis = async () => {
         setLoading(true);
         try {
-            setAnalysisData(mockAnalysisData);
-            // const result = await getComprehensiveAnalysis();
-            // if (result.success) {
-            //     setAnalysisData(result.data);
+            // setAnalysisData(mockAnalysisData);
+            const result = await getComprehensiveAnalysis();
+            if (result.success) {
+                setAnalysisData(result.data);
 
-            //     // Check for crisis indicators
-            //     // const crisisCheck = checkCrisisIndicators(result.data.analyses['30days'].data);
-            //     if (crisisCheck.needs_immediate_support) {
-            //         showCrisisAlert(crisisCheck);
-            //     }
-            // }
+                // Check for crisis indicators
+                const crisisCheck = checkCrisisIndicators(result.data.analyses['30days'].data);
+                if (crisisCheck.needs_immediate_support) {
+                    showCrisisAlert(crisisCheck);
+                }
+            }
         } catch (error) {
             Alert.alert('Error', 'Failed to load mental health analysis');
         } finally {

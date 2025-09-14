@@ -15,7 +15,7 @@ export const getPurpose = async () => {
             },
         });
         const data = await response.json();
-        console.log("Purpose data:", data);
+        // console.log("Purpose data:", data);
         return data.purpose;
     } catch (error) {
         console.error("Error fetching purpose:", error);
@@ -34,7 +34,7 @@ export const getGoal = async () => {
             },
         });
         const data = await response.json();
-        console.log("Goals data:", data);
+        // console.log("Goals data:", data);
         return data.goals;
     } catch (error) {
         console.error("Error fetching goals:", error);
@@ -53,11 +53,49 @@ export const getAboutMe = async () => {
             },
         });
         const data = await response.json();
-        console.log("AboutMe data:", data);
+        // console.log("AboutMe data:", data);
         return data.aboutme;
     } catch (error) {
         console.error("Error fetching about me:", error);
         throw error;
+    }
+};
+
+
+export const getUserProfile = async () => {
+    try {
+        const token = await SecureStore.getItemAsync('authToken');
+
+        if (!token) {
+            Alert.alert('Error', 'Authentication token not found');
+            return;
+        }
+
+        const response = await fetch(`${BaseUrl}/api/auth/profile`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            const userData = data.user;
+            const profileInfo = {
+                name: userData.name || '',
+                bio: userData.bio || '',
+                dob: userData.dob || 'Not Updated',
+                gender: userData.gender || 'Male',
+            };
+
+
+
+            return profileInfo;
+        }
+    } catch (error) {
+        console.error('Profile fetch error:', error);
     }
 };
 

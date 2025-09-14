@@ -1,16 +1,19 @@
 
 const BaseUrl = 'http://192.168.1.23:9000';
 
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YjE4NWI5MDRjNjA1ZjY2OWE2N2NjMCIsImVtYWlsIjoiYmFudGlAZ21haWwuY2ltIiwiaWF0IjoxNzU3Nzg4NDQzLCJleHAiOjE3NTgzOTMyNDN9.XctXEN8TcCPX0kFzP45-jb8etnOqo8fCiLxWhpBJqis";
-
+// const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YjE4NWI5MDRjNjA1ZjY2OWE2N2NjMCIsImVtYWlsIjoiYmFudGlAZ21haWwuY2ltIiwiaWF0IjoxNzU3Nzg4NDQzLCJleHAiOjE3NTgzOTMyNDN9.XctXEN8TcCPX0kFzP45-jb8etnOqo8fCiLxWhpBJqis";
+import * as SecureStore from 'expo-secure-store';
 import { decryptData } from '../cryptoEnDe.js';
-import KDFJoinKey from '../kdfService.js';
+import KDFJoinKey, { getStoredKey } from '../kdfService.js';
 
 const decryptEntries = async (entries) => {
+    // const { user } = useAuth();
     try {
-        // const keyLocal = await getStoredKey();
-        const keyLocal = "7fef001aa5ee20392b84aac2dcb0678c5cf1fe31974af8678ead610369efef01";
+        const keyLocal = await getStoredKey();
         // const derivedKey = await KDFJoinKey(keyLocal, user.email, user.encryptionKeySalt);
+
+        //testing
+        // const keyLocal = "7fef001aa5ee20392b84aac2dcb0678c5cf1fe31974af8678ead610369efef01";
         const derivedKey = await KDFJoinKey(keyLocal, "banti@gmail.cim", "$2b$10$rNBqeTOBxd0tuplCVq3BBO");
 
         console.log('Decrypting entries with derived key...');
@@ -25,7 +28,7 @@ const decryptEntries = async (entries) => {
 
                     const decryptedTitle = await decryptData(entry.encryptedTitle, derivedKey);
                     const decryptedContent = await decryptData(entry.encryptedContent, derivedKey);
-
+                    console.log('Decrypted title and content:', { decryptedTitle, decryptedContent });
                     // Check if decryption actually worked (not just empty or garbled data)
                     if (!decryptedTitle || !decryptedContent ||
                         decryptedTitle.includes('�') || decryptedContent.includes('�') ||
@@ -84,7 +87,7 @@ const decryptEntries = async (entries) => {
 
 
 export const getDiaryEntries = async (timeframe = 'yesterday') => {
-    // const token = await SecureStore.getItemAsync('authToken');
+    const token = await SecureStore.getItemAsync('authToken');
     try {
         // entries?start=2025-09-01&end=2025-09-14
         const response = await fetch(`${BaseUrl}/api/diary/entries?timeframe=${timeframe}`, {
@@ -106,7 +109,7 @@ export const getDiaryEntries = async (timeframe = 'yesterday') => {
 };
 
 export const getDiaryEntriesByStartandEnd = async (start, end) => {
-    // const token = await SecureStore.getItemAsync('authToken');
+    const token = await SecureStore.getItemAsync('authToken');
     try {
         const response = await fetch(`${BaseUrl}/api/diary/entries?start=${start}&end=${end}`, {
             method: 'GET',
