@@ -1,3 +1,7 @@
+import { getGoal, getPurpose, getUserProfile } from "./getAlldata";
+import { getDiaryEntries } from "./getDiaryEntries";
+import { createMentalHealthPrompt, createPredictivePrompt } from "./promt";
+const GEMINI_API_KEY = "AIzaSyCTPAw1OiNBToHXR5IHJPG3MWXkUuTFf60"
 export const callGeminiAPI = async (prompt) => {
     try {
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
@@ -49,6 +53,7 @@ export const callGeminiAPI = async (prompt) => {
 // ===============================
 
 export const analyzeMentalHealth = async (timeframe = '30days') => {
+
     try {
         const [entries, userProfile, goals, purpose] = await Promise.all([
             getDiaryEntries(timeframe),
@@ -215,17 +220,6 @@ const getCrisisResources = () => {
 // 8. HELPER FUNCTIONS
 // ===============================
 
-const calculateAge = (dob) => {
-    if (!dob) return null;
-    const today = new Date();
-    const birthDate = new Date(dob);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-    }
-    return age;
-};
 
 const calculateCurrentTrends = (entries) => {
     if (!entries || entries.length === 0) return {};

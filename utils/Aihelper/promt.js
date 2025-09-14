@@ -13,7 +13,7 @@ const calculateAge = (dob) => {
   return age;
 };
 
-const createMentalHealthPrompt = (entries, userProfile, timeframe) => {
+export const createMentalHealthPrompt = (entries, userProfile, timeframe) => {
   const entriesText = entries.map(entry =>
     `Date: ${entry.date}, Mood: ${entry.mood}/10, Title: ${entry.title}, Content: ${entry.content}`
   ).join('\n');
@@ -105,7 +105,7 @@ Be specific, compassionate, and evidence-based. Focus on actionable insights and
 // 3. PREDICTIVE ANALYSIS SYSTEM
 // ===============================
 
-const createPredictivePrompt = (historicalAnalyses, currentTrends, userProfile) => {
+export const createPredictivePrompt = (historicalAnalyses, currentTrends, userProfile) => {
   return `
 Based on the following mental health patterns, provide predictive insights:
 
