@@ -7,7 +7,7 @@ interface GoalsProps {
     onGoalsSubmit?: (goals: string) => void;
 }
 
-const BASE_URL = 'http://192.168.1.23:9000/api/userdetails';
+const BASE_URL = 'https://ai-dairy-backend.onrender.com/api/userdetails';
 
 const Goals: React.FC<GoalsProps> = ({ onGoalsSubmit }) => {
     const [goalsDB, setGoalsDB] = useState<string>('');

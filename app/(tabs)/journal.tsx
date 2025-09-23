@@ -30,7 +30,7 @@ const Journal = () => {
             const token = await SecureStore.getItemAsync('authToken');
             console.log('Token:', token);
 
-            const response = await fetch('http://192.168.1.23:9000/api/diary/entries', {
+            const response = await fetch('https://ai-dairy-backend.onrender.com/api/diary/entries', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -227,7 +227,7 @@ const Journal = () => {
         }
 
         const token = await SecureStore.getItemAsync('authToken');
-        const url = `http://192.168.1.23:9000/api/mood/${moodId}`;
+        const url = `https://ai-dairy-backend.onrender.com/api/mood/${moodId}`;
 
         console.log('🌐 Making API call to:', url);
         console.log('🔑 Token:', token ? 'Present' : 'Missing');

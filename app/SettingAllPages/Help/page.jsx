@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 
 
-const BASE_URL = 'http://192.168.1.23:9000/api/faq';
+const BASE_URL = 'https://ai-dairy-backend.onrender.com/api/faq';
 
 const HelpSupport = () => {
     const [expandedFAQ, setExpandedFAQ] = useState(null);

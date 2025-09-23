@@ -3,7 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 // Make sure to define your base_url
-const base_url = 'http://192.168.1.23:9000/api'; // Use your actual IP
+const base_url = 'https://ai-dairy-backend.onrender.com/api'; // Use your actual IP
 
 const AuthContext = createContext();
 

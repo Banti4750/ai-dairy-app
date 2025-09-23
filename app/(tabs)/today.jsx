@@ -33,7 +33,7 @@ const TodayTab = () => {
 
     const fetchDailyQuote = async () => {
         try {
-            const response = await fetch("http://192.168.1.23:9000/api/dailyquotes", {
+            const response = await fetch("https://ai-dairy-backend.onrender.com/api/dailyquotes", {
                 method: "GET"
             })
 
@@ -72,7 +72,7 @@ const TodayTab = () => {
 
             console.log('Fetching entry for today:', todayDate);
 
-            const response = await fetch('http://192.168.1.23:9000/api/diary/entries', {
+            const response = await fetch('https://ai-dairy-backend.onrender.com/api/diary/entries', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

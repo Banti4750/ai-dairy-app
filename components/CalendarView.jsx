@@ -3,7 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 
-const BASE_URL = 'http://192.168.1.23:9000/api/diary';
+const BASE_URL = 'https://ai-dairy-backend.onrender.com/api/diary';
 
 const CalendarViewTest = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -32,6 +32,7 @@ const CalendarViewTest = () => {
             );
 
             const result = await response.json();
+            console.log("hjb")
 
             if (response.ok) {
                 // Transform response into dictionary { "YYYY-MM-DD": true }
@@ -41,6 +42,7 @@ const CalendarViewTest = () => {
                     const dateStr = dateObj.toISOString().split("T")[0]; // "2025-09-11"
                     mappedEntries[dateStr] = true;
                 });
+                console.log(`map entery ${mappedEntries}`)
                 setEntries(mappedEntries);
             } else {
                 console.error("API error:", result.message);

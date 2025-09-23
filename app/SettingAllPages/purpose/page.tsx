@@ -7,7 +7,7 @@ interface PurposeProps {
     onPurposeSubmit?: (purpose: string) => void;
 }
 
-const BASE_URL = 'http://192.168.1.23:9000/api/userdetails';
+const BASE_URL = 'https://ai-dairy-backend.onrender.com/api/userdetails';
 
 const Purpose: React.FC<PurposeProps> = ({ onPurposeSubmit }) => {
     const [purposeDB, setPurposeDB] = useState<string>('');

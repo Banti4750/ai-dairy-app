@@ -14,7 +14,7 @@ import {
     View
 } from 'react-native';
 
-const BASE_URL = 'http://192.168.1.23:9000/api/auth';
+const BASE_URL = 'https://ai-dairy-backend.onrender.com/api/auth';
 
 // Extract ProfileField as a separate memoized component
 const ProfileField = memo(({ icon, label, value, onChangeText, editable = true, iconColor = '#4F46E5', onPress, isEditing, updating }) => {

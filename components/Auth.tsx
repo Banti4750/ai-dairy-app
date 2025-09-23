@@ -16,7 +16,7 @@ import CryptoService from '../utils/CryptoService';
 import EncryptionKeyCard from './encryptionKeyCard';
 import ResetPasswordCard from './resetPasswordcard';
 
-const base_url = 'http://192.168.1.23:9000/api' // Replace with your IP
+const base_url = 'https://ai-dairy-backend.onrender.com/api' // Replace with your IP
 
 const Auth = () => {
     const { login, signup } = useAuth(); // Get auth functions from context

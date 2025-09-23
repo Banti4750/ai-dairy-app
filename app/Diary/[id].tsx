@@ -52,7 +52,7 @@ const page = () => {
     async function fetchDiaryById(id: any) {
         const token = await SecureStore.getItemAsync('authToken');
         try {
-            const response = await fetch(`http://192.168.1.23:9000/api/diary/entries/${id}`, {
+            const response = await fetch(`https://ai-dairy-backend.onrender.com/api/diary/entries/${id}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -137,7 +137,7 @@ const page = () => {
 
             const token = await SecureStore.getItemAsync('authToken');
 
-            const response = await fetch(`http://192.168.1.23:9000/api/diary/entries/${id}`, {
+            const response = await fetch(`https://ai-dairy-backend.onrender.com/api/diary/entries/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -193,7 +193,7 @@ const page = () => {
         try {
             const token = await SecureStore.getItemAsync('authToken');
 
-            const response = await fetch(`http://192.168.1.23:9000/api/diary/entries/${id}`, {
+            const response = await fetch(`https://ai-dairy-backend.onrender.com/api/diary/entries/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,

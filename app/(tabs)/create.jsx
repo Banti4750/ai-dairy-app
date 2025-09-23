@@ -62,7 +62,7 @@ const Create = ({ onSave, onCancel }) => {
     async function fetchDB() {
         try {
             setLoading(true);
-            const response = await fetch("http://192.168.1.23:9000/api/mood/all", {
+            const response = await fetch("https://ai-dairy-backend.onrender.com/api/mood/all", {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ const Create = ({ onSave, onCancel }) => {
             const encryptedContent = await encryptData(content.trim(), derivedKey);
 
             // Save to backend
-            const response = await fetch("http://192.168.1.23:9000/api/diary/add", {
+            const response = await fetch("https://ai-dairy-backend.onrender.com/api/diary/add", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

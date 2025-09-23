@@ -7,7 +7,7 @@ interface AboutProps {
     onAboutSubmit?: (about: string) => void;
 }
 
-const BASE_URL = 'http://192.168.1.23:9000/api/userdetails';
+const BASE_URL = 'https://ai-dairy-backend.onrender.com/api/userdetails';
 
 const About: React.FC<AboutProps> = ({ onAboutSubmit }) => {
     const [aboutDB, setAboutDB] = useState<string>('');

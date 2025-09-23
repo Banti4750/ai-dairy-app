@@ -19,7 +19,7 @@ const ResetPasswordCard = ({ email, onBackToSignIn }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
-    const base_url = 'http://192.168.1.23:9000/api'; // Replace with your IP
+    const base_url = 'https://ai-dairy-backend.onrender.com/api'; // Replace with your IP
 
     const validateInputs = () => {
         if (!otp || otp.trim().length === 0) {

@@ -1,5 +1,5 @@
 
-// const BaseUrl = 'http://192.168.1.23:9000';
+// const BaseUrl = 'https://ai-dairy-backend.onrender.com/';
 
 // // const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YjE4NWI5MDRjNjA1ZjY2OWE2N2NjMCIsImVtYWlsIjoiYmFudGlAZ21haWwuY2ltIiwiaWF0IjoxNzU3Nzg4NDQzLCJleHAiOjE3NTgzOTMyNDN9.XctXEN8TcCPX0kFzP45-jb8etnOqo8fCiLxWhpBJqis";
 // import * as SecureStore from 'expo-secure-store';
@@ -144,7 +144,7 @@ import * as SecureStore from 'expo-secure-store';
 import { decryptData } from '../cryptoEnDe.js';
 import KDFJoinKey, { getStoredKey } from '../kdfService.js';
 
-const BaseUrl = 'http://192.168.1.23:9000';
+const BaseUrl = 'https://ai-dairy-backend.onrender.com/';
 
 const decryptEntries = async (entries) => {
     try {

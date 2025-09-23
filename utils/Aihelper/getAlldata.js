@@ -1,4 +1,4 @@
-const BaseUrl = 'http://192.168.1.23:9000';
+const BaseUrl = 'https://ai-dairy-backend.onrender.com/';
 console.log("BaseUrl:", BaseUrl);
 import * as SecureStore from 'expo-secure-store';
 
