@@ -1,4 +1,4 @@
-const BaseUrl = 'https://ai-dairy-backend.onrender.com/';
+const BaseUrl = 'https://ai-dairy-backend.onrender.com';
 console.log("BaseUrl:", BaseUrl);
 import * as SecureStore from 'expo-secure-store';
 
@@ -15,7 +15,7 @@ export const getPurpose = async () => {
             },
         });
         const data = await response.json();
-        // console.log("Purpose data:", data);
+        console.log("Purpose data:", data);
         return data.purpose;
     } catch (error) {
         console.error("Error fetching purpose:", error);
@@ -34,7 +34,7 @@ export const getGoal = async () => {
             },
         });
         const data = await response.json();
-        // console.log("Goals data:", data);
+        console.log("Goals data:", data);
         return data.goals;
     } catch (error) {
         console.error("Error fetching goals:", error);
@@ -53,7 +53,7 @@ export const getAboutMe = async () => {
             },
         });
         const data = await response.json();
-        // console.log("AboutMe data:", data);
+        console.log("AboutMe data:", data);
         return data.aboutme;
     } catch (error) {
         console.error("Error fetching about me:", error);
