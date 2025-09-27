@@ -14,7 +14,7 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "nativewind-env.d.ts",
-    "components/Auth.tsx",
+    "components/Auth.jsx",
     "context/AuthContext.js",
     "utils/demo.js",
     "utils/CryptoService.js",
@@ -22,6 +22,7 @@
     "app/(tabs)/create.jsx",
     "app/(tabs)/today.jsx",
     "app/(tabs)/mood.jsx",
-    "app/(tabs)/journal.jsx"
+    "app/(tabs)/journal.jsx",
+    "components/encryptionKeyCard.jsx"
   ]
 }
