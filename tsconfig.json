@@ -21,6 +21,7 @@
     "app/SettingAllPages/Profile/page.jsx",
     "app/(tabs)/create.jsx",
     "app/(tabs)/today.jsx",
-    "app/(tabs)/mood.jsx"
+    "app/(tabs)/mood.jsx",
+    "app/(tabs)/journal.jsx"
   ]
 }

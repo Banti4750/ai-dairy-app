@@ -3,7 +3,7 @@ import { decryptData } from '@/utils/cryptoEnDe';
 import { getStoredKey, KDFJoinKey } from '@/utils/kdfService';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
@@ -97,7 +97,7 @@ const Journal = () => {
     };
 
     // Decrypt diary entries
-    const decryptEntries = async (entries: any) => {
+    const decryptEntries = async (entries) => {
         try {
             const keyLocal = await getStoredKey();
             const derivedKey = await KDFJoinKey(keyLocal, user.email, user.encryptionKeySalt);
@@ -108,7 +108,7 @@ const Journal = () => {
             const totalEntries = entries.length;
 
             const decryptedEntries = await Promise.all(
-                entries.map(async (entry: any) => {
+                entries.map(async (entry) => {
                     try {
                         console.log('Decrypting entry:', entry._id);
 
@@ -172,7 +172,7 @@ const Journal = () => {
     };
 
     // Group entries by date
-    const groupEntriesByDate = (entries: any) => {
+    const groupEntriesByDate = (entries) => {
         const grouped = {};
 
         entries.forEach(entry => {
@@ -196,7 +196,7 @@ const Journal = () => {
     };
 
     // Format date for display
-    const formatDate = (dateString: any) => {
+    const formatDate = (dateString) => {
         const date = new Date(dateString);
         const today = new Date();
         const yesterday = new Date(today);
@@ -217,7 +217,7 @@ const Journal = () => {
     };
 
     // Get mood emoji - simplified since API doesn't return mood data
-    const getMoodDisplay = async (moodId: any) => {
+    const getMoodDisplay = async (moodId) => {
         console.log('🔍 Attempting to fetch mood for ID:', moodId);
 
         // Check cache first
@@ -272,7 +272,7 @@ const Journal = () => {
         fetchDiaryEntries();
     };
 
-    const toggleExpanded = (entryId: any) => {
+    const toggleExpanded = (entryId) => {
         setExpandedEntry(expandedEntry === entryId ? null : entryId);
     };
 
