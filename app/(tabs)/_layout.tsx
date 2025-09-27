@@ -1,7 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Tabs, useRouter } from "expo-router";
-import { Alert, Pressable, View } from "react-native";
+import { Pressable, View } from "react-native";
 
 // Header right component with search and settings
 const HeaderRight = ({ onSearch, onSettings }) => (
@@ -33,13 +33,10 @@ const HeaderRight = ({ onSearch, onSettings }) => (
 
 // Search handler function
 const handleSearch = () => {
-    Alert.alert(
-        "Search",
-        "Search functionality will be implemented here",
-        [{ text: "OK" }]
-    );
+    const router = useRouter()
+
     // Navigate to search screen or open search modal
-    // router.push('/search'); // Uncomment when you have a search screen
+    router.push('/Search/search'); // Uncomment when you have a search screen
 };
 
 // Settings handler function

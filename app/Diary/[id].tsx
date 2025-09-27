@@ -34,6 +34,7 @@ const page = () => {
 
     const scrollViewRef = useRef(null);
 
+
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
             setKeyboardVisible(true);
